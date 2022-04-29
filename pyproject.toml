@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mishka_services"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Ivan Rychkov <rychkov.ivan@gmail.com>"]
 

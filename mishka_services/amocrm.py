@@ -6,7 +6,6 @@ import os
 
 class AmoCRM:
     """Отрефакторить, сделать методы нестатическими."""
-    base_url = 'https://{}.amocrm.ru'.format(os.environ['AMOCRM_ACCOUNT_NAME'])
     api_token = os.environ.get('AMOCRM_API_TOKEN')
 
     attrs_dict = {'PRODUCTS': 165525,
@@ -15,7 +14,8 @@ class AmoCRM:
                   'PRODUCT': 682895,
                   'delivery_status': 690781}
 
-    def __init__(self, email=None, api_token=None, connect=False):
+    def __init__(self, email=None, api_token=None, connect=False, account: str = None):
+        self.base_url = 'https://{}.amocrm.ru'.format(account or os.environ['AMOCRM_ACCOUNT_NAME'])
         if email:
             self.email = email
         if api_token:
@@ -28,7 +28,7 @@ class AmoCRM:
             self.update_session()
 
     def update_session(self):
-        self.session.post('https://andreymishkacloud.amocrm.ru/private/api/auth.php?type=json',
+        self.session.post(self.base_url + '/private/api/auth.php?type=json',
                           data={'USER_LOGIN': self.email,
                                 'USER_HASH': self.api_token})
         print('session refreshed')
@@ -36,7 +36,7 @@ class AmoCRM:
 
     def get_lead_by_id(self, lead_id):
         """Получает данные заявки по id"""
-        return self.get(AmoCRM.base_url + f'/api/v4/leads/{lead_id}').json()
+        return self.get(self.base_url + f'/api/v4/leads/{lead_id}').json()
 
     def get_leads(self, per_page=100, **filter_):
         """Получает сделки постранично."""
@@ -60,7 +60,7 @@ class AmoCRM:
                                           'values': [{'value': v}]}
                                          for k, v in fields.items() if v is not None]}
         # print('body is', body)
-        return self.patch(AmoCRM.base_url + f'/api/v4/leads/{lead_id}',
+        return self.patch(self.base_url + f'/api/v4/leads/{lead_id}',
                           json=body).json()
 
     @staticmethod
